@@ -1,23 +1,18 @@
 package mod.azure.iseelava;
 
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.fluid.Fluids;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
-@Mod("iseelava")
-public class ISeeLavaClientMod {
+@Environment(EnvType.CLIENT)
+public class ISeeLavaClientMod implements ClientModInitializer {
 
-	public ISeeLavaClientMod() {
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
-		MinecraftForge.EVENT_BUS.register(this);
-	}
-
-	private void doClientStuff(final FMLClientSetupEvent event) {
-		RenderTypeLookup.setRenderLayer(Fluids.LAVA, RenderType.translucent());
-		RenderTypeLookup.setRenderLayer(Fluids.FLOWING_LAVA, RenderType.translucent());
+	@Override
+	public void onInitializeClient() {
+		BlockRenderLayerMap.INSTANCE.putFluid(Fluids.LAVA, RenderLayer.getTranslucent());
+		BlockRenderLayerMap.INSTANCE.putFluid(Fluids.FLOWING_LAVA, RenderLayer.getTranslucent());
 	}
 }
