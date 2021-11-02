@@ -1,8 +1,8 @@
 package mod.azure.iseelava;
 
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.fluid.Fluids;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -17,7 +17,7 @@ public class ISeeLavaClientMod {
 	}
 
 	private void doClientStuff(final FMLClientSetupEvent event) {
-		RenderTypeLookup.setRenderLayer(Fluids.LAVA, RenderType.translucent());
-		RenderTypeLookup.setRenderLayer(Fluids.FLOWING_LAVA, RenderType.translucent());
+		ItemBlockRenderTypes.setRenderLayer(Fluids.LAVA, RenderType.translucent());
+		ItemBlockRenderTypes.setRenderLayer(Fluids.FLOWING_LAVA, RenderType.translucent());
 	}
 }
