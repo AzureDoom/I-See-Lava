@@ -8,7 +8,7 @@
 		"AzureDoomC"
 	],
 	"contact": {
-		"homepage": "https://www.curseforge.com/minecraft/mc-mods/azuredooms-doom-mod-fabric/",
+		"homepage": "https://modrinth.com/mod/i-see-lava",
 		"issues": "https://github.com/AzureDoom/I-See-Lava/issues",
 		"sources": "https://github.com/AzureDoom/I-See-Lava/"
 	},
@@ -20,8 +20,9 @@
 		]
 	},
 	"depends": {
-		"fabricloader": ">=0.11.3",
-		"fabric": "*",
-		"minecraft": "1.17.x"
+		"fabricloader": ">=0.14.8",
+   		"fabric": "*",
+		"minecraft": ">=1.19.1",
+		"java": ">=17"
 	}
 }
