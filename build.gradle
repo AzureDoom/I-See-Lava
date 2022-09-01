@@ -4,20 +4,29 @@ buildscript {
     }
 }
 
+import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
+import com.modrinth.minotaur.dependencies.ModDependency
+
 plugins {
-	id 'fabric-loom' version '0.9-SNAPSHOT'
+	id 'fabric-loom' version '0.12-SNAPSHOT'
 	id 'maven-publish'
 }
 
-sourceCompatibility = JavaVersion.VERSION_16
-targetCompatibility = JavaVersion.VERSION_16
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
 
 repositories {
-    maven { url  = 'https://plugins.gradle.org/m2/' }
+    maven { url "https://cfa2.cursemaven.com" }
+    maven { url "https://maven.shedaniel.me/" }
+    maven { url "https://maven.terraformersmc.com/" }
+    maven { url "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/" }
+    maven { url "https://plugins.gradle.org/m2/" }
+    maven { url "https://api.modrinth.com/maven" }
 }
 
 dependencies {
@@ -35,8 +44,24 @@ processResources {
 	}
 }
 
-tasks.withType(JavaCompile) {
-	options.encoding = "UTF-8"
+processResources {
+	doLast {
+        def jsonMinifyStart = System.currentTimeMillis()
+        def jsonMinified = 0
+        def jsonBytesSaved = 0
+        fileTree(dir: outputs.files.asPath, include: '**/*.json').each { 
+            File file = it
+            jsonMinified++
+            def oldLength = file.length()
+            file.text = JsonOutput.toJson(new JsonSlurper().parse(file))
+            jsonBytesSaved += oldLength - file.length()
+        }
+        println('Minified ' + jsonMinified + ' json files. Saved ' + jsonBytesSaved + ' bytes. Took ' + (System.currentTimeMillis() - jsonMinifyStart) + 'ms.')
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 17
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -48,17 +73,55 @@ jar {
 	from "LICENSE"
 }
 
-publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			artifact(remapJar) {
-				builtBy remapJar
-			}
-			artifact(sourcesJar) {
-				builtBy remapSourcesJar
-			}
-		}
-	}
-	repositories {
+if (file('key.properties').exists()) {
+    curseforge {
+
+    	def curseProp = new Properties()
+    	File secretPropsFile = file("key.properties")
+    	curseProp.load(secretPropsFile.newInputStream())
+
+    	project {
+        	apiKey = curseProp.getProperty('curseKey')
+        	id = "543575"
+        	releaseType = "release"
+        	changelogType = 'text'
+        	changelog = file('CHANGELOG.txt')
+			addGameVersion("1.19.2")
+			addGameVersion("Fabric")
+			addGameVersion("Java 17")
+
+        	relations {
+            	requiredDependency 'fabric-api'  
+        	}
+        	mainArtifact(remapJar)
+
+        	afterEvaluate {
+            	uploadTask.dependsOn("remapJar")
+        	}
+    	}
+    	options {
+    		//debug = true
+        	forgeGradleIntegration = false
+    	}
+    }
+}
+
+if (file('key.properties').exists()) {
+	modrinth {
+		def modrinthProp = new Properties()
+		File secretPropsFile = file("key.properties")
+		modrinthProp.load(secretPropsFile.newInputStream())
+		
+		token = modrinthProp.getProperty('modrinthKey')
+		projectId = 'TcVddnvI' 
+		versionNumber = project.mod_version 
+		versionName = '1.19.2 Fabric'
+		uploadFile = remapJar 
+		changelog = rootProject.file("changelog.txt").text
+		gameVersions = ['1.19.2']
+		loaders = ['fabric']
+		dependencies { 
+        	required.project "fabric-api"
+   		}
 	}
 }
