@@ -8,4 +8,4 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-rootProject.name = 'iseelava-fabric-1.19'
+rootProject.name = 'iseelava-fabric-1.18'
