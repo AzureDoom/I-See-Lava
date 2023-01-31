@@ -14,8 +14,8 @@
 		"sources": "https://github.com/AzureDoom/I-See-Lava/"
 	},
 	"license": "MIT",
-	"icon": "assets/minecraft/icon.png",
-	"environment": "*",
+	"icon": "assets/iseelava/icon.png",
+	"environment": "client",
 	"entrypoints": {
 		"client": [
 			"mod.azure.iseelava.ISeeLavaClientMod"
