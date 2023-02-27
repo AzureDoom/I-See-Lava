@@ -24,6 +24,7 @@ public class ISeeLavaClientMod implements ClientModInitializer {
 			ResourceManagerHelper.registerBuiltinResourcePack(asId("translucent_lava"), container, ResourcePackActivationType.DEFAULT_ENABLED);
 		});
 	}
+	
 	public static Identifier asId(String path) {
 		return new Identifier(ID, path);
 	}
