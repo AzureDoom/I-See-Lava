@@ -10,8 +10,8 @@ import groovy.json.JsonOutput
 import com.modrinth.minotaur.dependencies.ModDependency
 
 plugins {
-	id 'fabric-loom' version '0.12-SNAPSHOT'
-	id 'maven-publish'
+    id 'fabric-loom' version '0.12-SNAPSHOT'
+    id 'maven-publish'
     id 'com.matthewprenger.cursegradle' version '1.4.0'
     id "com.modrinth.minotaur" version "2.+"
 }
@@ -89,11 +89,9 @@ if (file('key.properties').exists()) {
         	releaseType = "release"
         	changelogType = 'text'
         	changelog = file('CHANGELOG.txt')
-			addGameVersion("1.19.2")
-			addGameVersion("1.19.3")
-			addGameVersion("1.19.4")
-			addGameVersion("Fabric")
-			addGameVersion("Java 17")
+        	addGameVersion("1.20")
+        	addGameVersion("Fabric")
+        	addGameVersion("Java 17")
 
         	relations {
             	requiredDependency 'fabric-api'  
@@ -120,10 +118,10 @@ if (file('key.properties').exists()) {
 		token = modrinthProp.getProperty('modrinthKey')
 		projectId = 'TcVddnvI' 
 		versionNumber = project.mod_version 
-		versionName = '1.19.3 Fabric'
+		versionName = '1.20 Fabric'
 		uploadFile = remapJar 
 		changelog = rootProject.file("changelog.txt").text
-		gameVersions = ['1.19.2','1.19.3','1.19.4']
+		gameVersions = ['1.20']
 		loaders = ['fabric']
 		dependencies { 
         	required.project "fabric-api"
