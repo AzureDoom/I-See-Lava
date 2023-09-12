@@ -1,49 +1,39 @@
-buildscript {
-    repositories {
-        jcenter()
-    	maven { url  = 'https://plugins.gradle.org/m2/' }
-    }
-}
-
-import groovy.json.JsonSlurper
-import groovy.json.JsonOutput
-import com.modrinth.minotaur.dependencies.ModDependency
-
 plugins {
-    id 'fabric-loom' version '0.12-SNAPSHOT'
+    id 'fabric-loom' version '1.3-SNAPSHOT'
     id 'maven-publish'
     id 'com.matthewprenger.cursegradle' version '1.4.0'
     id "com.modrinth.minotaur" version "2.+"
 }
 
+import com.modrinth.minotaur.dependencies.ModDependency
+import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
+
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
-archivesBaseName = project.archives_base_name
-version = project.mod_version
-group = project.maven_group
+base {
+    archivesName = project.modName
+}
+version = project.modVersion
+group = project.mavenGroup
 
 repositories {
-    maven { url "https://cfa2.cursemaven.com" }
-    maven { url "https://maven.shedaniel.me/" }
-    maven { url "https://maven.terraformersmc.com/" }
-    maven { url "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/" }
-    maven { url "https://plugins.gradle.org/m2/" }
-    maven { url "https://api.modrinth.com/maven" }
+
 }
 
 dependencies {
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	minecraft "com.mojang:minecraft:${project.minecraftVersion}"
+	mappings loom.officialMojangMappings()
+	modImplementation "net.fabricmc:fabric-loader:${project.loaderVersion}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabricVersion}"
 }
 
 processResources {
-    inputs.property "version", project.version
+    inputs.property "version", project.modVersion
 
 	filesMatching("fabric.mod.json") {
-		expand "version": project.version
+		expand "version": project.modVersion
 	}
 }
 
@@ -85,7 +75,7 @@ if (file('key.properties').exists()) {
 
     	project {
         	apiKey = curseProp.getProperty('curseKey')
-        	id = "543575"
+        	id = "${project.curseID}"
         	releaseType = "release"
         	changelogType = 'text'
         	changelog = file('CHANGELOG.txt')
@@ -103,7 +93,6 @@ if (file('key.properties').exists()) {
         	}
     	}
     	options {
-    		//debug = true
         	forgeGradleIntegration = false
     	}
     }
@@ -116,9 +105,8 @@ if (file('key.properties').exists()) {
 		modrinthProp.load(secretPropsFile.newInputStream())
 		
 		token = modrinthProp.getProperty('modrinthKey')
-		projectId = 'TcVddnvI' 
-		versionNumber = project.mod_version 
-		versionName = '1.20.1 Fabric'
+		projectId = project.modrinthID 
+		versionNumber = project.modVersion 
 		uploadFile = remapJar 
 		changelog = rootProject.file("changelog.txt").text
 		gameVersions = ['1.20.1']

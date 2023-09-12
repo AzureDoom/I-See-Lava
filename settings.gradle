@@ -6,6 +6,7 @@ pluginManagement {
             url = 'https://maven.fabricmc.net/'
         }
         gradlePluginPortal()
+    	maven { url  = 'https://plugins.gradle.org/m2/' }
     }
 }
-rootProject.name = 'iseelava-fabric-1.20'
+rootProject.name = 'iseelava-fabric-1.20.1'
