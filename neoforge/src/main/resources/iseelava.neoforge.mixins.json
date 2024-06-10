@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "mod.azure.iseelava.mixins",
+  "compatibilityLevel": "JAVA_21",
+  "refmap": "iseelava.refmap.json",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [
+  ]
+}
