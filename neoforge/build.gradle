@@ -42,7 +42,6 @@ repositories {
 
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
-    implementation "mod.azure.azurelib:azurelib-neo-${minecraft_version}:${azurelib_version}"
 }
 
 if (file('key.properties').exists()) {
