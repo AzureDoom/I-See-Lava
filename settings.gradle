@@ -1,12 +1,23 @@
 pluginManagement {
     repositories {
-        jcenter()
-        maven {
-            name = 'Fabric'
-            url = 'https://maven.fabricmc.net/'
-        }
         gradlePluginPortal()
-    	maven { url  = 'https://plugins.gradle.org/m2/' }
+        maven { url = 'https://maven.minecraftforge.net/' }
+        maven { url = 'https://maven.parchmentmc.org' }
+    }
+    resolutionStrategy {
+        eachPlugin {
+            switch (requested.id.toString()) {
+                case "net.neoforged:forge": {
+                    useModule("${requested.id}:ForgeGradle:${requested.version}")
+                    break
+                }
+                case "org.spongepowered.mixin": {
+                    useModule("org.spongepowered:mixingradle:${requested.version}")
+                    break;
+                }
+            }
+        }
     }
 }
-rootProject.name = 'iseelava-fabric-1.20.2'
+
+rootProject.name = 'iseelava-forge-1.20.1'
