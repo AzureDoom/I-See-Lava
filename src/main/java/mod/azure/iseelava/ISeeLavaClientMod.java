@@ -1,31 +1,45 @@
 package mod.azure.iseelava;
 
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
-import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.PathPackResources;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.event.AddPackFindersEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
-@Environment(EnvType.CLIENT)
-public class ISeeLavaClientMod implements ClientModInitializer {
-	public static final String ID = "iseelava";
+import java.util.Optional;
 
-	@Override
-	public void onInitializeClient() {
-		BlockRenderLayerMap.INSTANCE.putFluid(Fluids.LAVA, RenderType.translucent());
-		BlockRenderLayerMap.INSTANCE.putFluid(Fluids.FLOWING_LAVA, RenderType.translucent());
+@Mod.EventBusSubscriber(modid = Main.ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+public class ISeeLavaClientMod {
 
-		FabricLoader.getInstance().getModContainer(ID).ifPresent(container -> {
-			ResourceManagerHelper.registerBuiltinResourcePack(asId("translucent_lava"), container, ResourcePackActivationType.DEFAULT_ENABLED);
-		});
-	}
+    @SubscribeEvent
+    public static void initClient(FMLClientSetupEvent event) {
+        ItemBlockRenderTypes.setRenderLayer(Fluids.LAVA, RenderType.translucent());
+        ItemBlockRenderTypes.setRenderLayer(Fluids.FLOWING_LAVA, RenderType.translucent());
+    }
 
-	public static ResourceLocation asId(String path) {
-		return new ResourceLocation(ID, path);
-	}
+    @SubscribeEvent
+    public static void onAddPackFindersEvent(AddPackFindersEvent event) {
+        if (event.getPackType() == PackType.CLIENT_RESOURCES) {
+            Optional<? extends ModContainer> optionalContainer = ModList.get().getModContainerById(Main.ID);
+            if (optionalContainer.isEmpty()) return;
+            event.addRepositorySource((consumer) -> consumer.accept(createPack("translucent_lava", "Translucent Lava")));
+        }
+    }
+
+    public static Pack createPack(String id, String name) {
+        var resourcePath = ModList.get().getModFileById(Main.ID).getFile().findResource("resourcepacks", id);
+        return Pack.readMetaAndCreate("builtin/" + id, Component.literal(name), true,
+                (path) -> new PathPackResources(path, resourcePath, false), PackType.CLIENT_RESOURCES, Pack.Position.TOP, PackSource.BUILT_IN);
+    }
 }
