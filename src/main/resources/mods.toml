@@ -1,0 +1,27 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+issueTrackerURL="https://github.com/AzureDoom/I-See-Lava/issues"
+license="MIT"
+[[mods]]
+modId="iseelava"
+version="${file.jarVersion}" 
+displayName="I See Lava"
+displayURL="https://modrinth.com/mod/i-see-lava"
+logoFile="icon.png"
+credits="Thanks to Mystic for the pure forge port!"
+authors="AzureDoomC, Sea Kerman, Mysticpasta1"
+description='''
+Just makes lava see through
+'''
+[[dependencies.iseelava]]
+    modId="forge"
+    mandatory=true 
+    versionRange="[47.4.0,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.iseelava]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1, 1.20.2)"
+    ordering="NONE"
+    side="BOTH"
