@@ -51,7 +51,7 @@ public class ISeeLavaClientMod {
             (path) -> new PathPackResources(path, resourcePath, false),
             PackType.CLIENT_RESOURCES,
             Pack.Position.TOP,
-            PackSource.FEATURE
+            PackSource.BUILT_IN
         );
     }
 }
