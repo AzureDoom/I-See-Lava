@@ -46,14 +46,16 @@ legacyForge {
     }
 }
 
-tasks.withType(JavaCompile).configureEach {
-    it.options.release = 17
+tasks.matching { it.name == 'publishMods' }.configureEach {
+    dependsOn tasks.named('build')
 }
 
-jar {
-	from("LICENSE") {
-		rename { "${it}_${project.modName}"}
-	}
+tasks.matching { it.name == 'publishCurseforge' }.configureEach {
+    dependsOn tasks.named('build')
+}
+
+tasks.matching { it.name == 'publishModrinth' }.configureEach {
+    dependsOn tasks.named('build')
 }
 
 if (file('key.properties').exists()) {
@@ -61,7 +63,8 @@ if (file('key.properties').exists()) {
         def releaseProp = new Properties()
         File secretPropsFile = file("key.properties")
         releaseProp.load(secretPropsFile.newInputStream())
-        file = jar.archiveFile
+        def jarFile = file("build/libs/iseelava-forge-${minecraft_version}-${project.version}.jar")
+        file = jarFile
         changelog = rootProject.file("changelog.md").text
         type = STABLE
         modLoaders.add("forge")
