@@ -7,7 +7,6 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
-import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.AddPackFindersEvent;
@@ -17,6 +16,7 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
+import java.nio.file.Path;
 import java.util.Optional;
 
 @Mod.EventBusSubscriber(modid = Main.ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -32,14 +32,26 @@ public class ISeeLavaClientMod {
     public static void onAddPackFindersEvent(AddPackFindersEvent event) {
         if (event.getPackType() == PackType.CLIENT_RESOURCES) {
             Optional<? extends ModContainer> optionalContainer = ModList.get().getModContainerById(Main.ID);
-            if (optionalContainer.isEmpty()) return;
-            event.addRepositorySource((consumer) -> consumer.accept(createPack("translucent_lava", "Translucent Lava")));
+
+            if (optionalContainer.isEmpty()) {
+                return;
+            }
+            event.addRepositorySource(
+                (consumer) -> consumer.accept(createPack("translucent_lava", "Translucent Lava"))
+            );
         }
     }
 
     public static Pack createPack(String id, String name) {
-        var resourcePath = ModList.get().getModFileById(Main.ID).getFile().findResource("resourcepacks", id);
-        return Pack.readMetaAndCreate("builtin/" + id, Component.literal(name), true,
-                (path) -> new PathPackResources(path, resourcePath, false), PackType.CLIENT_RESOURCES, Pack.Position.TOP, PackSource.BUILT_IN);
+        Path resourcePath = ModList.get().getModFileById(Main.ID).getFile().findResource("resourcepacks", id);
+        return Pack.readMetaAndCreate(
+            "builtin/" + id,
+            Component.literal(name),
+            true,
+            (path) -> new PathPackResources(path, resourcePath, false),
+            PackType.CLIENT_RESOURCES,
+            Pack.Position.TOP,
+            PackSource.FEATURE
+        );
     }
 }
