@@ -1,78 +1,48 @@
 plugins {
-    id 'net.minecraftforge.gradle' version '[6.0.13, 6.2)'
-    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+    id 'idea'
     id 'maven-publish'
-    id 'net.darkhax.curseforgegradle' version '1.+'
-    id "com.modrinth.minotaur" version "2.+"
+    id 'net.neoforged.moddev.legacyforge' version '2.0.88'
+    id "me.modmuss50.mod-publish-plugin" version "0.8.4"
+    id 'com.diffplug.spotless' version "7.0.0.BETA3"
 }
 
-import com.modrinth.minotaur.dependencies.ModDependency
-import groovy.json.JsonSlurper
-import groovy.json.JsonOutput
-
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
-
-base {
-    archivesName = project.modName
-}
 version = project.modVersion
 group = project.mavenGroup
 
-minecraft {
-    mappings channel: project.mappings, version: project.mappings_version
+base {
+    archivesName = "${mod_id}-forge-${minecraft_version}"
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+legacyForge {
+    version = "${minecraft_version}-${forge_version}"
+
+    validateAccessTransformers = true
+
+    parchment {
+        minecraftVersion = minecraft_version
+        mappingsVersion = mappings_version
+    }
 
     runs {
         client {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'examplemod'
-
-            mods {
-                iseelava {
-                    source sourceSets.main
-                }
-            }
+            client()
+            gameDirectory = project.file('run/client')
         }
-
+        data {
+            data()
+        }
         server {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'examplemod'
-
-            mods {
-                iseelava {
-                    source sourceSets.main
-                }
-            }
+            server()
+            gameDirectory = project.file('run/server')
         }
     }
-}
 
-sourceSets.main.resources {
-    srcDir 'src/generated/resources' }
-
-dependencies {
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-}
-
-processResources {
-	doLast {
-        def jsonMinifyStart = System.currentTimeMillis()
-        def jsonMinified = 0
-        def jsonBytesSaved = 0
-        fileTree(dir: outputs.files.asPath, include: '**/*.json').each {
-            File file = it
-            jsonMinified++
-            def oldLength = file.length()
-            file.text = JsonOutput.toJson(new JsonSlurper().parse(file))
-            jsonBytesSaved += oldLength - file.length()
+    mods {
+        iseelava {
+            sourceSet sourceSets.main
         }
-        println('Minified ' + jsonMinified + ' json files. Saved ' + jsonBytesSaved + ' bytes. Took ' + (System.currentTimeMillis() - jsonMinifyStart) + 'ms.')
     }
 }
 
@@ -87,34 +57,43 @@ jar {
 }
 
 if (file('key.properties').exists()) {
-    task publishCurseForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
-        def curseProp = new Properties()
+    publishMods {
+        def releaseProp = new Properties()
         File secretPropsFile = file("key.properties")
-        curseProp.load(secretPropsFile.newInputStream())
-        apiToken = curseProp.getProperty("curseKey")
+        releaseProp.load(secretPropsFile.newInputStream())
+        file = jar.archiveFile
+        changelog = rootProject.file("changelog.md").text
+        type = STABLE
+        modLoaders.add("forge")
+        modLoaders.add("neoforge")
+        displayName = "${mod_id} forge ${minecraft_version}"
 
-        def mainFile = upload("543575", remapJar)
-        mainFile.releaseType = "release"
-        mainFile.changelogType = "text"
-        mainFile.changelog = file("CHANGELOG.txt")
-        mainFile.addModLoader("Forge", "NeoForge")
-        mainFile.addJavaVersion("Java 17")
-        mainFile.addGameVersion("1.20.1")
+        curseforge {
+            projectId = "543575"
+            projectSlug = "i-see-lava"
+            accessToken = releaseProp.getProperty("curseKey")
+            minecraftVersions.add(project.minecraft_version)
+        }
+
+        modrinth {
+            projectId = "TcVddnvI"
+            accessToken = releaseProp.getProperty('modrinthKey')
+            minecraftVersions.add(project.minecraft_version)
+        }
     }
 }
 
-if (file('key.properties').exists()) {
-	modrinth {
-		def modrinthProp = new Properties()
-		File secretPropsFile = file("key.properties")
-		modrinthProp.load(secretPropsFile.newInputStream())
+spotless {
+    java {
+        eclipse().configFile("$rootDir/eclipse-formatter.xml")
+        endWithNewline()
+        importOrder("", "java", group.toString(), "\\#")
+        indentWithSpaces(4)
+        removeUnusedImports()
+        trimTrailingWhitespace()
+    }
+}
 
-		token = modrinthProp.getProperty('modrinthKey')
-		projectId = project.modrinthID
-		versionNumber = project.modVersion
-		uploadFile = remapJar
-		changelog = rootProject.file("changelog.txt").text
-		gameVersions = ['1.20.1']
-		loaders = ['forge']
-	}
+tasks.build {
+    dependsOn("spotlessApply")
 }
